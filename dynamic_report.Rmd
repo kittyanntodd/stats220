@@ -1,0 +1,83 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+```{css}
+body{padding: 20;
+  font-family: Arial;
+}
+```
+
+## Study habits across university courses
+```{r}
+library(tidyverse)
+logged_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vS5KtnYOIxFYu5syrhzq7Yu-tQzs1FDfiYZwJmFifae4xH__JWvYJ29lSKz9DGDux4d33ZxQF0FJPeL/pub?output=csv")
+
+latest_data <- logged_data %>%
+  rename(
+    course = 2,
+    minutes = 3,
+    productivity = 4
+  ) # changes the names of my columns so they are easier to work with
+```
+
+This report analyses study sessions over the span of a forntight. It explores how much time was spent studying a range of courses and how productive those study sessions were.
+
+### Summary of study time and productivity
+The average study session lasted **`r round(mean(latest_data$minutes, na.rm=TRUE), 1)` minutes**.
+
+The longest study session lasted **`r max(latest_data$minutes, na.rm=TRUE)` minutes**.
+
+The shortest study session lasted **`r min(latest_data$minutes, na.rm=TRUE)` minutes**.
+
+The average level of productivity in a session was **`r round(mean(latest_data$productivity, na.rm=TRUE), 1)`**.
+
+```{r}
+# bar plot to compare how many study sessions for each course
+ggplot(latest_data, aes(x = course)) +
+  geom_bar() +
+  labs(
+    title = "Number of study sessions per course",
+    x = "Course",
+    y = "Count"
+  )
+
+# bar plot to show the distribution of producitivity levels
+ggplot(latest_data, aes(x = productivity)) +
+  geom_bar() +
+  labs(
+    title = "Distribution of study session productivity",
+    x = "Productivity level",
+    y = "Count"
+  )
+
+# bar plot to compare how much time was spent on each course
+latest_data %>%
+  group_by(course) %>%
+  summarise(total_minutes = sum(minutes, na.rm = TRUE)) %>%
+  ggplot(aes(x = course, y = total_minutes)) +
+  geom_col() +
+  labs(
+    title = "Total Study Time per Course",
+    x = "Course",
+    y = "Total Minutes Studied"
+  )
+```
+
+From my graphs we can see that some courses require more total work time than others. This might reflect differences in workload or difficulty. However it is interesting to note that the number of study sessions and the total minutes studied per course graphs are quite different. This could show that some courses benefit from less time but more frequent sessions vs longer sessions but less frequent. It's also interesting to see that the productivity rating shows 1 and 5 are the most common. This could be a result of human interpretation usually choosing the more extreme options and viewing it more of a not productive (1), or yes productive (5) situation. 
+
+```{r}
+pets <- c("cat", "dog", "turtle", "rabbit")
+best_pet <- pets[1]
+
+```
+
+The best pet to have is a `r best_pet` of course!
+
+![](https://c.tenor.com/-qBsG1HwR4oAAAAC/tenor.gif)
